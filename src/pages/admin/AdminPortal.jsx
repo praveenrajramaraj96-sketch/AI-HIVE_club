@@ -9,6 +9,8 @@ import AdminAnnouncements from './components/AdminAnnouncements';
 import AdminGallery from './components/AdminGallery';
 import AdminAchievements from './components/AdminAchievements';
 import AdminContacts from './components/AdminContacts';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase';
 import './AdminPortal.css';
 
 const AdminPortal = () => {
@@ -20,6 +22,15 @@ const AdminPortal = () => {
     const closeSidebar = () => setIsSidebarOpen(false);
 
     const isActive = (path) => location.pathname.includes(path) ? 'active' : '';
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate('/admin-login');
+        } catch (error) {
+            console.error("Error logging out:", error);
+        }
+    };
 
     return (
         <div className="portal-layout">
@@ -68,9 +79,9 @@ const AdminPortal = () => {
                     </Link>
                 </nav>
                 <div className="sidebar-footer">
-                    <button className="nav-item logout-btn" onClick={() => navigate('/')}>
+                    <button className="nav-item logout-btn" onClick={handleLogout}>
                         <LogOut size={20} />
-                        Exit Portal
+                        Logout
                     </button>
                 </div>
             </aside>
