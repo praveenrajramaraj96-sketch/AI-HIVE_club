@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ShieldAlert, ArrowRight, Loader2 } from 'lucide-react';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import './AdminLogin.css';
@@ -13,6 +13,27 @@ const AdminLogin = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Check role and redirect
+                const q = query(collection(db, "students"), where("email", "==", user.email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    navigate('/student/dashboard');
+                } else {
+                    navigate('/admin/dashboard');
+                }
+            } else {
+                setPageLoading(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,6 +59,10 @@ const AdminLogin = () => {
             setLoading(false);
         }
     };
+
+    if (pageLoading) {
+        return <div className="loading-screen"><div className="spinner"></div></div>;
+    }
 
     return (
         <div className="admin-login-container">

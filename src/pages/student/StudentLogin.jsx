@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Zap, ArrowRight, Loader2 } from 'lucide-react';
-import { signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import './StudentLogin.css';
@@ -11,9 +11,29 @@ const StudentLogin = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(true);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // If user is already logged in, quickly check role and redirect
+                const q = query(collection(db, "students"), where("email", "==", user.email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    navigate('/student/dashboard');
+                } else {
+                    navigate('/admin/dashboard');
+                }
+            } else {
+                setPageLoading(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,10 +41,6 @@ const StudentLogin = () => {
         setLoading(true);
 
         try {
-            // Set persistence based on the Remember Me checkbox
-            const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
-            await setPersistence(auth, persistenceType);
-
             await signInWithEmailAndPassword(auth, email, password);
 
             // Check if user is a student
@@ -43,6 +59,10 @@ const StudentLogin = () => {
             setLoading(false);
         }
     };
+
+    if (pageLoading) {
+        return <div className="loading-screen"><div className="spinner"></div></div>;
+    }
 
     return (
         <div className="login-container">
@@ -77,7 +97,6 @@ const StudentLogin = () => {
                                 placeholder="student@college.edu"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                autoComplete="username"
                                 required
                             />
                         </div>
@@ -93,23 +112,9 @@ const StudentLogin = () => {
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                autoComplete="current-password"
                                 required
                             />
                         </div>
-                    </div>
-
-                    <div className="remember-me-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '-0.5rem' }}>
-                        <input
-                            type="checkbox"
-                            id="remember"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                            style={{ cursor: 'pointer' }}
-                        />
-                        <label htmlFor="remember" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', cursor: 'pointer' }}>
-                            Remember me / Save login state
-                        </label>
                     </div>
 
                     <button type="submit" className="btn-primary login-btn" disabled={loading}>
