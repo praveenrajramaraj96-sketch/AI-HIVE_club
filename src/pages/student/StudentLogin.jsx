@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Zap, ArrowRight, Loader2 } from 'lucide-react';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import './StudentLogin.css';
@@ -11,6 +11,7 @@ const StudentLogin = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(true);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -20,6 +21,10 @@ const StudentLogin = () => {
         setLoading(true);
 
         try {
+            // Set persistence based on the Remember Me checkbox
+            const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+            await setPersistence(auth, persistenceType);
+
             await signInWithEmailAndPassword(auth, email, password);
 
             // Check if user is a student
@@ -72,6 +77,7 @@ const StudentLogin = () => {
                                 placeholder="student@college.edu"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="username"
                                 required
                             />
                         </div>
@@ -87,9 +93,23 @@ const StudentLogin = () => {
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                autoComplete="current-password"
                                 required
                             />
                         </div>
+                    </div>
+
+                    <div className="remember-me-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '-0.5rem' }}>
+                        <input
+                            type="checkbox"
+                            id="remember"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            style={{ cursor: 'pointer' }}
+                        />
+                        <label htmlFor="remember" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', cursor: 'pointer' }}>
+                            Remember me / Save login state
+                        </label>
                     </div>
 
                     <button type="submit" className="btn-primary login-btn" disabled={loading}>
