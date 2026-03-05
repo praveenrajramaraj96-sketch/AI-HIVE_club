@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ShieldAlert, ArrowRight, Loader2 } from 'lucide-react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { auth, db } from '../../firebase';
 import './AdminLogin.css';
 
 const AdminLogin = () => {
@@ -20,6 +21,16 @@ const AdminLogin = () => {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
+
+            // Check if user is a student
+            const q = query(collection(db, "students"), where("email", "==", email));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                await signOut(auth);
+                throw new Error("Access Denied: Students are not permitted in the Admin portal.");
+            }
+
             navigate('/admin/dashboard');
         } catch (err) {
             setError(err.message.replace('Firebase:', ''));
