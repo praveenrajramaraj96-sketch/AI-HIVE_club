@@ -21,6 +21,7 @@ const AdminMembers = () => {
                     email: data.email || 'Unknown',
                     phone: data.phone || 'N/A',
                     department: data.department || 'N/A',
+                    year: data.year || 'N/A',
                     role: data.role || 'Student',
                     status: data.status || 'Active',
                     joinDate: data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'Unknown'
@@ -113,7 +114,7 @@ const AdminMembers = () => {
                                     </div>
                                     <div>
                                         <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{member.name || 'No Name Provided'}</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{member.department}</div>
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{member.department} • Year {member.year}</div>
                                     </div>
                                 </td>
                                 <td>

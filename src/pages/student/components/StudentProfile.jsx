@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, ShieldCheck, Loader2, Camera, UserSquare2 } from 'lucide-react';
+import { User, Mail, ShieldCheck, Loader2, Camera, UserSquare2, GraduationCap } from 'lucide-react';
 import { doc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../../firebase';
 import './StudentProfile.css';
 
 const StudentProfile = () => {
-    const [profile, setProfile] = useState({ name: '', department: '', phone: '', email: '', role: 'Student', docId: null });
+    const [profile, setProfile] = useState({ name: '', department: '', year: 'I', phone: '', email: '', role: 'Student', docId: null });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState('');
@@ -27,6 +27,7 @@ const StudentProfile = () => {
                     setProfile({
                         name: data.name || '',
                         department: data.department || '',
+                        year: data.year || 'I',
                         phone: data.phone || '',
                         email: userEmail,
                         role: data.role || 'Student',
@@ -57,6 +58,7 @@ const StudentProfile = () => {
             await updateDoc(docRef, {
                 name: profile.name,
                 department: profile.department,
+                year: profile.year,
                 phone: profile.phone
             });
             setSuccess('Profile updated successfully!');
@@ -144,6 +146,21 @@ const StudentProfile = () => {
                                     onChange={e => setProfile({ ...profile, department: e.target.value })}
                                     placeholder="e.g. Computer Science"
                                 />
+                            </div>
+
+                            <div className="input-group">
+                                <label className="input-label">Year of Study</label>
+                                <select
+                                    className="input-base"
+                                    value={profile.year}
+                                    onChange={e => setProfile({ ...profile, year: e.target.value })}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <option value="I">Year I</option>
+                                    <option value="II">Year II</option>
+                                    <option value="III">Year III</option>
+                                    <option value="IV">Year IV</option>
+                                </select>
                             </div>
 
                             <div className="input-group">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, UserPlus, ArrowRight, Loader2, CheckCircle, User, Phone, Book } from 'lucide-react';
+import { Mail, Lock, UserPlus, ArrowRight, Loader2, CheckCircle, User, Phone, Book, GraduationCap } from 'lucide-react';
 import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import { auth, db, secondaryAuth } from '../../../firebase';
@@ -9,6 +9,7 @@ const StudentRegister = () => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [department, setDepartment] = useState('');
+    const [year, setYear] = useState('I');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -31,6 +32,7 @@ const StudentRegister = () => {
                 name: name,
                 phone: phone,
                 department: department,
+                year: year,
                 email: email,
                 createdAt: new Date().toISOString(),
                 status: 'Active',
@@ -41,6 +43,7 @@ const StudentRegister = () => {
             setName('');
             setPhone('');
             setDepartment('');
+            setYear('I');
             setEmail('');
             setPassword('');
         } catch (err) {
@@ -111,6 +114,25 @@ const StudentRegister = () => {
                                 onChange={(e) => setDepartment(e.target.value)}
                                 required
                             />
+                        </div>
+                    </div>
+
+                    <div className="input-group">
+                        <label className="input-label">Year of Study</label>
+                        <div className="input-wrapper">
+                            <GraduationCap size={20} className="input-icon" />
+                            <select
+                                className="input-base with-icon"
+                                value={year}
+                                onChange={(e) => setYear(e.target.value)}
+                                required
+                                style={{ appearance: 'none', cursor: 'pointer' }}
+                            >
+                                <option value="I">Year I</option>
+                                <option value="II">Year II</option>
+                                <option value="III">Year III</option>
+                                <option value="IV">Year IV</option>
+                            </select>
                         </div>
                     </div>
 
