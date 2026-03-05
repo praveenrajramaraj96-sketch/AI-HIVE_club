@@ -1,0 +1,129 @@
+.admin-contacts-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contacts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+    .contacts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.contact-item {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-left: 4px solid var(--border-color);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.contact-item.unread {
+    border-left-color: var(--pk-primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.contact-item:hover {
+    transform: translateY(-5px);
+    background: rgba(15, 23, 42, 0.4);
+}
+
+.contact-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.contact-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.status-pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.pill-new {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--pk-primary);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.pill-read {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-muted);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.contact-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.contact-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.contact-body h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+}
+
+.contact-from {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.contact-message {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    background: rgba(15, 23, 42, 0.3);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    line-height: 1.5;
+    min-height: 100px;
+}
+
+.contact-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.contact-item .icon-btn.btn-danger {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--pk-danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-item .icon-btn.btn-danger:hover {
+    background: var(--pk-danger);
+    color: white;
+}

@@ -1,0 +1,213 @@
+.portal-layout {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-dark);
+}
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border-right: 1px solid var(--border-color);
+    border-radius: 0;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+    background: rgba(15, 23, 42, 0.8);
+}
+
+.sidebar-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h2 {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--pk-secondary), var(--pk-primary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: rgba(14, 165, 233, 0.15);
+    /* Light blue background for hover */
+    color: var(--pk-secondary);
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.logout-btn {
+    width: 100%;
+    justify-content: flex-start;
+    color: var(--pk-danger);
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--pk-danger);
+}
+
+.portal-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.portal-header {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    background: rgba(15, 23, 42, 0.8);
+    margin-bottom: 0;
+}
+
+.portal-header h2 {
+    font-size: 1.25rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--bg-hover);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatar-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: var(--shadow-glow);
+    background: white;
+    /* Helpful if the logo is transparent */
+}
+
+.content-area {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background-image: var(--gradient-bg);
+    background-attachment: local;
+}
+
+.p-6 {
+    padding: 1.5rem;
+}
+
+.content-area>.glass-panel {
+    min-height: calc(100% - 1rem);
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        bottom: 0;
+        transition: left 0.3s ease-in-out;
+        z-index: 50;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 40;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .portal-header {
+        padding: 0 1rem;
+    }
+
+    .portal-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .content-area {
+        padding: 1rem;
+    }
+
+    .content-area>.glass-panel {
+        padding: 1rem;
+    }
+}

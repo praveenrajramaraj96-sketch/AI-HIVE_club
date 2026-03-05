@@ -1,0 +1,152 @@
+/* StudentProfile.css */
+.student-profile-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem;
+    gap: 1.5rem;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid rgba(139, 92, 246, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.avatar-huge {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--pk-secondary);
+}
+
+.camera-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--pk-secondary);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.camera-btn:hover {
+    background: var(--pk-primary);
+    transform: scale(1.1);
+}
+
+.sidebar-info {
+    text-align: center;
+}
+
+.sidebar-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+}
+
+.sidebar-email {
+    margin: 0 0 1rem 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.sidebar-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--pk-success);
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.profile-details {
+    padding: 2.5rem;
+}
+
+.profile-details h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.locked-input {
+    background: rgba(30, 41, 59, 0.4) !important;
+    color: var(--text-muted) !important;
+    cursor: not-allowed;
+    border-style: dashed;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.success-banner {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--pk-success);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    text-align: center;
+}

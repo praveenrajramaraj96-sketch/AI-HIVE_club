@@ -1,0 +1,245 @@
+.student-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.welcome-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    border-left: 4px solid var(--pk-secondary);
+}
+
+@media (max-width: 768px) {
+    .welcome-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+}
+
+.banner-content h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+}
+
+.banner-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-blue {
+    color: var(--pk-secondary);
+}
+
+.icon-amber {
+    color: var(--pk-warning);
+}
+
+.icon-purple {
+    color: var(--pk-accent);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--pk-secondary);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-link:hover {
+    color: var(--text-primary);
+}
+
+.event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.event-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--bg-hover);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.event-item:hover {
+    border-color: var(--border-color);
+    transform: translateX(4px);
+}
+
+.event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    min-width: 60px;
+}
+
+.event-date .month {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--pk-secondary);
+}
+
+.event-date .day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.event-details {
+    flex: 1;
+}
+
+.event-details h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+}
+
+.event-details p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.announcement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.announcement-item {
+    position: relative;
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--border-color);
+}
+
+.announcement-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pk-warning);
+}
+
+.announcement-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 1rem;
+    background: rgba(148, 163, 184, 0.2);
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.announcement-badge.new {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--pk-success);
+}
+
+.announcement-item p {
+    margin: 0 0 0.5rem 0;
+    font-weight: 500;
+}
+
+.announcement-item .time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.progress-content {
+    display: flex;
+    justify-content: space-around;
+    padding: 1.5rem 0;
+}
+
+.progress-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid var(--pk-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: rgba(139, 92, 246, 0.1);
+}
+
+.progress-stat p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
