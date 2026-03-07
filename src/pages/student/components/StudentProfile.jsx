@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, ShieldCheck, Loader2, Camera, UserSquare2, GraduationCap } from 'lucide-react';
+import { User, Mail, ShieldCheck, Loader2, Camera, UserSquare2, GraduationCap, Lock } from 'lucide-react';
 import { doc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { updatePassword } from 'firebase/auth';
 import { db, auth } from '../../../firebase';
 import './StudentProfile.css';
 
@@ -9,6 +10,12 @@ const StudentProfile = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState('');
+
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
+    const [updatingPassword, setUpdatingPassword] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -66,6 +73,39 @@ const StudentProfile = () => {
         } catch (error) {
             console.error("Error saving profile", error);
             setSaving(false);
+        }
+    };
+
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        setPasswordError('');
+        setPasswordSuccess('');
+        
+        if (newPassword !== confirmPassword) {
+            setPasswordError('Passwords do not match');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setPasswordError('Password must be at least 6 characters');
+            return;
+        }
+
+        setUpdatingPassword(true);
+        try {
+            await updatePassword(auth.currentUser, newPassword);
+            setPasswordSuccess('Password successfully updated!');
+            setNewPassword('');
+            setConfirmPassword('');
+            setTimeout(() => setPasswordSuccess(''), 3000);
+        } catch (error) {
+            if (error.code === 'auth/requires-recent-login') {
+                setPasswordError('Please logout and login again to change your password for security reasons.');
+            } else {
+                setPasswordError(error.message.replace('Firebase:', ''));
+            }
+        } finally {
+            setUpdatingPassword(false);
         }
     };
 
@@ -178,6 +218,52 @@ const StudentProfile = () => {
                         <div className="form-actions">
                             <button type="submit" className="btn-primary" disabled={loading || saving}>
                                 {saving ? <Loader2 className="spinner" size={18} /> : 'Save Changes'}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div className="divider" style={{ margin: '2rem 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}></div>
+
+                    <h3>Change Password</h3>
+                    <form className="profile-form" onSubmit={handlePasswordChange}>
+                        {passwordSuccess && <div className="success-banner">{passwordSuccess}</div>}
+                        {passwordError && <div className="error-message" style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '0.5rem', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--pk-danger)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>{passwordError}</div>}
+                        
+                        <div className="profile-grid">
+                            <div className="input-group">
+                                <label className="input-label">New Password</label>
+                                <div className="input-wrapper">
+                                    <Lock size={18} className="input-icon" />
+                                    <input
+                                        type="password"
+                                        className="input-base with-icon"
+                                        value={newPassword}
+                                        onChange={e => setNewPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="input-group">
+                                <label className="input-label">Confirm New Password</label>
+                                <div className="input-wrapper">
+                                    <Lock size={18} className="input-icon" />
+                                    <input
+                                        type="password"
+                                        className="input-base with-icon"
+                                        value={confirmPassword}
+                                        onChange={e => setConfirmPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-actions">
+                            <button type="submit" className="btn-secondary" disabled={updatingPassword}>
+                                {updatingPassword ? <Loader2 className="spinner" size={18} /> : 'Update Password'}
                             </button>
                         </div>
                     </form>
