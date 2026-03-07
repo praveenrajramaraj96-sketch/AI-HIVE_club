@@ -1,19 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Trash2, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Plus, Trash2, Loader2, Link2, Check, X, Users } from 'lucide-react';
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import imageCompression from 'browser-image-compression';
 import { db } from '../../../firebase';
 import './AdminEvents.css';
 
 const AdminEvents = () => {
+    const navigate = useNavigate();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [copiedId, setCopiedId] = useState(null);
 
     // Form state
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [location, setLocation] = useState('');
+
+    // Custom Fields ("Google Forms" style)
+    const [customFields, setCustomFields] = useState([]);
+    const [newField, setNewField] = useState('');
+    const [isNewFieldRequired, setIsNewFieldRequired] = useState(false);
+    const [newFieldType, setNewFieldType] = useState('text');
+
+    // QR Code for payment
+    const [qrCodeFile, setQrCodeFile] = useState(null);
+
+    const handleAddField = () => {
+        if (newField.trim() !== '' && !customFields.find(f => (f.label ? f.label : f) === newField.trim())) {
+            setCustomFields([...customFields, { label: newField.trim(), required: isNewFieldRequired, type: newFieldType }]);
+            setNewField('');
+            setIsNewFieldRequired(false);
+            setNewFieldType('text');
+        }
+    };
+
+    const handleRemoveField = (fieldLabelToRemove) => {
+        setCustomFields(customFields.filter(f => (f.label ? f.label : f) !== fieldLabelToRemove));
+    };
 
     const fetchEvents = async () => {
         setLoading(true);
@@ -41,18 +67,64 @@ const AdminEvents = () => {
         e.preventDefault();
         if (!title || !date) return;
         setSubmitting(true);
+        console.log("Starting event creation...");
+
         try {
+            let qrCodeUrl = null;
+            if (qrCodeFile) {
+                try {
+                    console.log("Compressing QR code...");
+
+                    const options = {
+                        maxSizeMB: 0.1, // extremely aggressive compression for text encoding to avoid 1MB Firestore limit
+                        maxWidthOrHeight: 400, // Small dimensions are fine for QR codes
+                        useWebWorker: true
+                    };
+
+                    const compressedFile = await imageCompression(qrCodeFile, options);
+
+                    // Convert the compressed File into a Base64 string
+                    const base64String = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(compressedFile);
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = error => reject(error);
+                    });
+
+                    qrCodeUrl = base64String;
+                    console.log("QR Code compressed & encoded to Base64!");
+
+                } catch (uploadErr) {
+                    console.error("Failed to compress/encode QR Code:", uploadErr);
+                    alert("Error processing QR code. Please check file size.");
+                    setSubmitting(false);
+                    return; // Stop if image processing fails
+                }
+            }
+
+            console.log("Saving to Firestore...");
             await addDoc(collection(db, "events"), {
                 title,
                 description,
                 date,
                 location,
+                customFields, // <-- Dynamic fields added by Admin
+                qrCodeUrl, // <-- Custom QR code
                 createdAt: new Date().toISOString()
             });
+            console.log("Saved to Firestore!");
+
             setTitle('');
             setDescription('');
             setDate('');
             setLocation('');
+            setCustomFields([]); // reset
+            setQrCodeFile(null); // reset qr
+
+            // Explicitly clear the file input DOM node
+            const fileInput = document.getElementById('qrFileInput');
+            if (fileInput) fileInput.value = '';
+
             await fetchEvents();
             console.log("Event created and list refreshed.");
         } catch (error) {
@@ -71,6 +143,13 @@ const AdminEvents = () => {
         } catch (error) {
             console.error("Error deleting event:", error);
         }
+    };
+
+    const copyEventLink = (id) => {
+        const link = `${window.location.origin}/event/${id}`;
+        navigator.clipboard.writeText(link);
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
     };
 
     return (
@@ -128,7 +207,82 @@ const AdminEvents = () => {
                                 rows="3"
                             ></textarea>
                         </div>
-                        <button type="submit" className="btn-primary" disabled={submitting}>
+
+                        <div className="divider" style={{ margin: '1rem 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}></div>
+
+                        <div className="input-group">
+                            <label className="input-label">Custom Questions (Optional)</label>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Ask attendees for specific details like "Department", "Roll Number", or "T-Shirt Size".</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                                <input
+                                    type="text"
+                                    className="input-base"
+                                    value={newField}
+                                    onChange={e => setNewField(e.target.value)}
+                                    placeholder="e.g. Current Year of Study"
+                                    style={{ width: '100%' }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddField(); } }}
+                                />
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <select
+                                        className="input-base"
+                                        value={newFieldType}
+                                        onChange={e => setNewFieldType(e.target.value)}
+                                        style={{ padding: '0 0.5rem', width: 'auto' }}
+                                    >
+                                        <option value="text">Text Entry</option>
+                                        <option value="date">Date picker</option>
+                                        <option value="image">Image Upload</option>
+                                    </select>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked={isNewFieldRequired} onChange={e => setIsNewFieldRequired(e.target.checked)} />
+                                        Required
+                                    </label>
+                                    <button type="button" className="btn-secondary" onClick={handleAddField} style={{ padding: '0 1rem', marginLeft: 'auto' }}>Add</button>
+                                </div>
+                            </div>
+
+                            {customFields.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                    {customFields.map((field, idx) => {
+                                        const fieldLabel = field.label ? field.label : field;
+                                        const fieldRequired = field.label ? field.required : true;
+                                        const fieldType = field.type ? field.type : 'text';
+                                        return (
+                                            <div key={idx} style={{ display: 'flex', alignItems: 'center', background: 'rgba(139, 92, 246, 0.2)', padding: '0.25rem 0.75rem', borderRadius: '1rem', fontSize: '0.85rem', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                                                {fieldLabel} <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginLeft: '0.5rem' }}>[{fieldType}]</span> {fieldRequired && <span style={{ color: 'var(--pk-danger)', marginLeft: '0.2rem' }}>*</span>}
+                                                <button type="button" onClick={() => handleRemoveField(fieldLabel)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginLeft: '0.5rem', display: 'flex', alignItems: 'center' }}>
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="divider" style={{ margin: '1rem 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}></div>
+
+                        <div className="input-group">
+                            <label className="input-label">Payment QR Code (Optional)</label>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Upload a specific QR Code that attendees should scan to pay for this event. Provide UPI as backup above.</p>
+                            <input
+                                id="qrFileInput"
+                                type="file"
+                                accept="image/*"
+                                className="input-base"
+                                onChange={e => {
+                                    if (e.target.files[0]) {
+                                        setQrCodeFile(e.target.files[0]);
+                                    } else {
+                                        setQrCodeFile(null);
+                                    }
+                                }}
+                            />
+                            {qrCodeFile && <p style={{ fontSize: '0.8rem', color: 'var(--pk-primary)', marginTop: '0.5rem' }}>Selected: {qrCodeFile.name}</p>}
+                        </div>
+
+                        <button type="submit" className="btn-primary" disabled={submitting} style={{ marginTop: '1rem' }}>
                             {submitting ? <Loader2 size={18} className="spinner" /> : <Plus size={18} />}
                             {submitting ? 'Creating...' : 'Create Event'}
                         </button>
@@ -153,13 +307,29 @@ const AdminEvents = () => {
                                             {event.location && <span className="event-location-badge">{event.location}</span>}
                                         </div>
                                     </div>
-                                    <button
-                                        className="icon-btn btn-danger"
-                                        onClick={() => handleDeleteEvent(event.id)}
-                                        title="Delete Event"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            className="icon-btn btn-secondary"
+                                            onClick={() => navigate(`/admin/events/${event.id}/registrations`)}
+                                            title="View Registrations"
+                                        >
+                                            <Users size={18} />
+                                        </button>
+                                        <button
+                                            className="icon-btn btn-secondary"
+                                            onClick={() => copyEventLink(event.id)}
+                                            title="Copy Share Link"
+                                        >
+                                            {copiedId === event.id ? <Check size={18} color="var(--pk-success)" /> : <Link2 size={18} />}
+                                        </button>
+                                        <button
+                                            className="icon-btn btn-danger"
+                                            onClick={() => handleDeleteEvent(event.id)}
+                                            title="Delete Event"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

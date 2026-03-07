@@ -9,6 +9,7 @@ import './index.css';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 import SplashScreen from './components/SplashScreen';
+import EventRegistration from './pages/EventRegistration';
 
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
@@ -66,6 +67,7 @@ function App() {
             <Route path="/admin/*" element={<ProtectedRoute redirectTo="/admin-login"><AdminPortal /></ProtectedRoute>} />
             <Route path="/student-login" element={<StudentLogin />} />
             <Route path="/student/*" element={<ProtectedRoute redirectTo="/student-login"><StudentPortal /></ProtectedRoute>} />
+            <Route path="/event/:eventId" element={<EventRegistration />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
