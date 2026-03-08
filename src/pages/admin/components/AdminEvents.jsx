@@ -18,6 +18,8 @@ const AdminEvents = () => {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [location, setLocation] = useState('');
+    const [memberPrice, setMemberPrice] = useState('');
+    const [guestPrice, setGuestPrice] = useState('');
 
     // Custom Fields ("Google Forms" style)
     const [customFields, setCustomFields] = useState([]);
@@ -108,6 +110,8 @@ const AdminEvents = () => {
                 description,
                 date,
                 location,
+                memberPrice,
+                guestPrice,
                 customFields, // <-- Dynamic fields added by Admin
                 qrCodeUrl, // <-- Custom QR code
                 createdAt: new Date().toISOString()
@@ -118,6 +122,8 @@ const AdminEvents = () => {
             setDescription('');
             setDate('');
             setLocation('');
+            setMemberPrice('');
+            setGuestPrice('');
             setCustomFields([]); // reset
             setQrCodeFile(null); // reset qr
 
@@ -196,6 +202,35 @@ const AdminEvents = () => {
                                 onChange={e => setLocation(e.target.value)}
                                 placeholder="e.g. Main Auditorium"
                             />
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div className="input-group">
+                                <label className="input-label">Member Price (₹)</label>
+                                <input
+                                    type="text"
+                                    className="input-base"
+                                    value={memberPrice}
+                                    onChange={e => setMemberPrice(e.target.value)}
+                                    placeholder="e.g. 99"
+                                    required
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label className="input-label">Guest Price (₹)</label>
+                                <input
+                                    type="text"
+                                    className="input-base"
+                                    value={guestPrice}
+                                    onChange={e => setGuestPrice(e.target.value)}
+                                    placeholder="e.g. 199"
+                                    required
+                                />
+                            </div>
+                            {memberPrice && guestPrice && !isNaN(memberPrice) && !isNaN(guestPrice) && (
+                                <p style={{ gridColumn: 'span 2', fontSize: '0.8rem', color: 'var(--pk-accent)', marginTop: '-0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                    <Check size={14} /> Member Discount Applied: ₹{Math.max(0, parseFloat(guestPrice) - parseFloat(memberPrice))} discount
+                                </p>
+                            )}
                         </div>
                         <div className="input-group">
                             <label className="input-label">Description</label>
@@ -305,6 +340,20 @@ const AdminEvents = () => {
                                         <div className="event-meta">
                                             <span className="event-date-badge"><Calendar size={14} /> {event.date}</span>
                                             {event.location && <span className="event-location-badge">{event.location}</span>}
+                                            <span style={{
+                                                fontSize: '0.75rem',
+                                                opacity: 0.8,
+                                                background: 'rgba(255,255,255,0.05)',
+                                                padding: '0.2rem 0.5rem',
+                                                borderRadius: '1rem',
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.25rem',
+                                                color: 'var(--pk-primary)'
+                                            }}>
+                                                M: ₹{event.memberPrice || 0} | G: ₹{event.guestPrice || 0}
+                                            </span>
                                         </div>
                                     </div>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>

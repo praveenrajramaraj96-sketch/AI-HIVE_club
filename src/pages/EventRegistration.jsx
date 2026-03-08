@@ -179,8 +179,8 @@ const EventRegistration = () => {
         );
     }
 
-    const memberPrice = "₹50";
-    const guestPrice = "₹100";
+    const memberPrice = event.memberPrice ? (event.memberPrice.toString().startsWith('₹') ? event.memberPrice : `₹${event.memberPrice}`) : '₹0';
+    const guestPrice = event.guestPrice ? (event.guestPrice.toString().startsWith('₹') ? event.guestPrice : `₹${event.guestPrice}`) : '₹0';
 
     return (
         <div className="event-registration-page">
