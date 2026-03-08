@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import { Download, ArrowLeft, Loader2, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
+import { Download, ArrowLeft, Loader2, CheckCircle, XCircle, ExternalLink, QrCode } from 'lucide-react';
 import { db } from '../../../firebase';
 import './AdminEventRegistrations.css';
 
@@ -77,7 +77,7 @@ const AdminEventRegistrations = () => {
         const dynamicHeaders = Array.from(customFieldKeys);
 
         // Standard CSV Headers
-        const headers = ["Name", "Email", "Phone", "Is Club Member", "Status", "Submission Date", "Proof URL", ...dynamicHeaders];
+        const headers = ["Name", "Email", "Phone", "Is Club Member", "Status", "Ticket ID", "Attendance", "Submission Date", "Proof URL", ...dynamicHeaders];
 
         // Escape CSV helper
         const escapeCSV = (value) => {
@@ -107,6 +107,8 @@ const AdminEventRegistrations = () => {
                     reg.phone,
                     reg.isMember ? "Yes" : "No",
                     reg.status || 'Pending',
+                    reg.ticketId || 'N/A',
+                    reg.checkedIn ? "Present" : "Absent",
                     date,
                     reg.proofUrl || 'No Link'
                 ].map(escapeCSV);
@@ -143,9 +145,14 @@ const AdminEventRegistrations = () => {
                         <h2>{eventTitle} - Registrations</h2>
                         <p>Manage and review all attendees for this event.</p>
                     </div>
-                    <button className="btn-primary" onClick={exportToCSV} disabled={registrations.length === 0} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Download size={18} /> Export Excel (CSV)
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="btn-secondary" onClick={() => navigate(`/admin/events/${eventId}/scanner`)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <QrCode size={18} /> Open Scanner
+                        </button>
+                        <button className="btn-primary" onClick={exportToCSV} disabled={registrations.length === 0} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Download size={18} /> Export Excel (CSV)
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -165,6 +172,8 @@ const AdminEventRegistrations = () => {
                                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>Name</th>
                                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>Contact</th>
                                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>Status / Role</th>
+                                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>Ticket ID</th>
+                                <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>Attendance</th>
                                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>Dynamic Info</th>
                                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)' }}>Payment Proof</th>
                                 <th style={{ padding: '1rem 0.5rem', color: 'var(--text-secondary)', textAlign: 'right' }}>Actions</th>
@@ -206,6 +215,20 @@ const AdminEventRegistrations = () => {
                                                 {reg.status || 'Pending'}
                                             </span>
                                         </div>
+                                    </td>
+                                    <td style={{ padding: '1rem 0.5rem' }}>
+                                        <code style={{ background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.75rem' }}>{reg.ticketId}</code>
+                                    </td>
+                                    <td style={{ padding: '1rem 0.5rem' }}>
+                                        <span style={{
+                                            padding: '0.25rem 0.5rem',
+                                            borderRadius: '1rem',
+                                            fontSize: '0.75rem',
+                                            background: reg.checkedIn ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255,255,255,0.05)',
+                                            color: reg.checkedIn ? 'var(--pk-success)' : 'var(--text-muted)'
+                                        }}>
+                                            {reg.checkedIn ? 'Checked In' : 'Not Present'}
+                                        </span>
                                     </td>
                                     <td style={{ padding: '1rem 0.5rem', maxWidth: '250px' }}>
                                         {reg.extraDetails && Object.keys(reg.extraDetails).length > 0 ? (

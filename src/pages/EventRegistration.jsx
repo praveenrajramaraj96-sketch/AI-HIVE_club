@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Calendar, MapPin, User, Mail, Phone, ArrowRight, Loader2, CheckCircle, UploadCloud, IndianRupee } from 'lucide-react';
 import { doc, getDoc, collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import imageCompression from 'browser-image-compression';
+import { QRCodeCanvas } from 'qrcode.react';
 import { db } from '../firebase';
 import './EventRegistration.css';
 
@@ -28,6 +29,7 @@ const EventRegistration = () => {
     const [proofFile, setProofFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
+    const [registeredTicketId, setRegisteredTicketId] = useState(null);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -140,6 +142,9 @@ const EventRegistration = () => {
                 }
             }
 
+            // 3. Generate Unique Ticket ID
+            const ticketId = `AIH-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
             // Create Registration Record
             await addDoc(collection(db, "event_registrations"), {
                 eventId,
@@ -151,9 +156,12 @@ const EventRegistration = () => {
                 isMember,
                 proofUrl: downloadURL,
                 status: 'Pending',
+                ticketId,
+                checkedIn: false,
                 createdAt: new Date().toISOString()
             });
 
+            setRegisteredTicketId(ticketId);
             setStep(4); // Go to Success Screen
 
         } catch (err) {
@@ -380,18 +388,30 @@ const EventRegistration = () => {
                 )}
 
                 {step === 4 && (
-                    <div className="success-container">
-                        <div className="success-icon">
-                            <CheckCircle size={40} />
+                    <div className="success-container" style={{ textAlign: 'center' }}>
+                        <div className="success-icon" style={{ margin: '0 auto 1.5rem auto' }}>
+                            <CheckCircle size={50} color="var(--pk-success)" />
                         </div>
-                        <div>
-                            <h2 style={{ marginBottom: '0.5rem' }}>Registration Received!</h2>
-                            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                                Thank you, {name}! Your payment screenshot has been uploaded and your registration is <strong>Pending Review</strong>.<br /><br />
-                                {isMember ? "Since you are an AI-Hive member, this ticket will automatically appear in your portal once the Admin approves it." : "We will contact you via email once your ticket is approved."}
-                            </p>
+                        <h2 style={{ marginBottom: '0.5rem' }}>Registration Received!</h2>
+                        <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                            Thank you, <strong>{name}</strong>! Your ticket is generated below.
+                            <br />Status: <span style={{ color: '#F59E0B', fontWeight: 'bold' }}>Pending Admin Approval</span>
+                        </p>
+
+                        <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px dashed #38bdf8', padding: '0.75rem', borderRadius: '0.75rem', marginBottom: '1.5rem', color: '#38bdf8', fontSize: '0.85rem' }}>
+                            📸 <strong>Take a screenshot of this page now!</strong> This is your digital entry ticket for the event.
                         </div>
-                        <button className="btn-primary" onClick={() => navigate('/')} style={{ marginTop: '1rem' }}>Return to Homepage</button>
+
+                        <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '1rem', display: 'inline-block', boxShadow: '0 10px 30px rgba(0,0,0,0.2)', marginBottom: '1.5rem' }}>
+                            <QRCodeCanvas value={registeredTicketId} size={150} />
+                            <p style={{ color: '#000', margin: '0.5rem 0 0 0', fontWeight: 'bold', fontSize: '0.8rem' }}>{registeredTicketId}</p>
+                        </div>
+
+                        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.5rem', textAlign: 'left', marginBottom: '1.5rem' }}>
+                            <p style={{ margin: 0, fontSize: '0.85rem' }}><strong>💡 Note:</strong> Your ticket is currently <strong>Inactive</strong>. Once the Admin verifies your payment screenshot, it will be activated for the event entry.</p>
+                        </div>
+
+                        <button className="btn-primary" onClick={() => navigate('/')} style={{ width: '100%', justifyContent: 'center' }}>Return to Homepage</button>
                     </div>
                 )}
             </motion.div>

@@ -6,6 +6,7 @@ import AdminMembers from './components/AdminMembers';
 import StudentRegister from './components/StudentRegister';
 import AdminEvents from './components/AdminEvents';
 import AdminEventRegistrations from './components/AdminEventRegistrations';
+import AdminScanner from './components/AdminScanner';
 import AdminAnnouncements from './components/AdminAnnouncements';
 import AdminGallery from './components/AdminGallery';
 import AdminAchievements from './components/AdminAchievements';
@@ -109,6 +110,7 @@ const AdminPortal = () => {
                         <Route path="members" element={<AdminMembers />} />
                         <Route path="events" element={<AdminEvents />} />
                         <Route path="events/:eventId/registrations" element={<AdminEventRegistrations />} />
+                        <Route path="events/:eventId/scanner" element={<AdminScanner />} />
                         <Route path="gallery" element={<AdminGallery />} />
                         <Route path="announcements" element={<AdminAnnouncements />} />
                         <Route path="achievements" element={<AdminAchievements />} />
