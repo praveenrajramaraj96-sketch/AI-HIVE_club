@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Award, Plus, Loader2, Trash2, Mail } from 'lucide-react';
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import imageCompression from 'browser-image-compression';
 import { db } from '../../../firebase';
 import './AdminAchievements.css';
 
@@ -14,7 +15,7 @@ const AdminAchievements = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [certificateUrl, setCertificateUrl] = useState('');
+    const [certificateFile, setCertificateFile] = useState(null);
 
     const fetchAchievements = async () => {
         setLoading(true);
@@ -40,19 +41,40 @@ const AdminAchievements = () => {
         setSubmitting(true);
 
         try {
+            let finalCertificateUrl = '';
+
+            if (certificateFile) {
+                const options = {
+                    maxSizeMB: 0.15,
+                    maxWidthOrHeight: 800,
+                    useWebWorker: true,
+                    fileType: 'image/jpeg'
+                };
+                const compressedFile = await imageCompression(certificateFile, options);
+                
+                finalCertificateUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(compressedFile);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            }
+
             await addDoc(collection(db, "achievements"), {
                 studentEmail,
                 title,
                 description,
                 date,
-                certificateUrl,
+                certificateUrl: finalCertificateUrl,
                 createdAt: new Date().toISOString()
             });
 
             setStudentEmail('');
             setTitle('');
             setDescription('');
-            setCertificateUrl('');
+            setCertificateFile(null);
+            document.getElementById('certFileInput').value = '';
+            
             fetchAchievements();
             alert("Achievement issued successfully!");
         } catch (err) {
@@ -114,14 +136,21 @@ const AdminAchievements = () => {
                         </div>
 
                         <div className="input-group">
-                            <label className="input-label">Certificate URL (Image/PDF)</label>
+                            <label className="input-label">Certificate Image (Optional)</label>
                             <input
-                                type="url"
+                                id="certFileInput"
+                                type="file"
+                                accept="image/*"
                                 className="input-base"
-                                placeholder="Link to digital certificate"
-                                value={certificateUrl}
-                                onChange={e => setCertificateUrl(e.target.value)}
+                                onChange={e => {
+                                    if (e.target.files[0]) {
+                                        setCertificateFile(e.target.files[0]);
+                                    } else {
+                                        setCertificateFile(null);
+                                    }
+                                }}
                             />
+                            {certificateFile && <p style={{ fontSize: '0.8rem', color: 'var(--pk-primary)', marginTop: '0.5rem' }}>Selected: {certificateFile.name}</p>}
                         </div>
 
                         <div className="input-group">
