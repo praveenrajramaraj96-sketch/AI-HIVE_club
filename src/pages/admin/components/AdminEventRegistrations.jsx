@@ -270,22 +270,26 @@ const AdminEventRegistrations = () => {
                                             <Loader2 className="spinner" size={20} />
                                         ) : (
                                             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                                <button
-                                                    className="icon-btn"
-                                                    style={{ color: 'var(--pk-success)', background: 'rgba(16, 185, 129, 0.1)' }}
-                                                    onClick={() => handleUpdateStatus(reg.id, 'Approved')}
-                                                    title="Approve"
-                                                >
-                                                    <CheckCircle size={18} />
-                                                </button>
-                                                <button
-                                                    className="icon-btn"
-                                                    style={{ color: 'var(--pk-danger)', background: 'rgba(239, 68, 68, 0.1)' }}
-                                                    onClick={() => handleUpdateStatus(reg.id, 'Rejected')}
-                                                    title="Reject"
-                                                >
-                                                    <XCircle size={18} />
-                                                </button>
+                                                {reg.status !== 'Approved' && (
+                                                    <button
+                                                        className="icon-btn"
+                                                        style={{ color: 'var(--pk-success)', background: 'rgba(16, 185, 129, 0.1)' }}
+                                                        onClick={() => handleUpdateStatus(reg.id, 'Approved')}
+                                                        title="Approve"
+                                                    >
+                                                        <CheckCircle size={18} />
+                                                    </button>
+                                                )}
+                                                {reg.status !== 'Rejected' && (
+                                                    <button
+                                                        className="icon-btn"
+                                                        style={{ color: 'var(--pk-danger)', background: 'rgba(239, 68, 68, 0.1)' }}
+                                                        onClick={() => handleUpdateStatus(reg.id, 'Rejected')}
+                                                        title="Reject"
+                                                    >
+                                                        <XCircle size={18} />
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                     </td>
