@@ -30,6 +30,7 @@ const EventRegistration = () => {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
     const [registeredTicketId, setRegisteredTicketId] = useState(null);
+    const [ticketStatus, setTicketStatus] = useState('Pending');
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -53,7 +54,26 @@ const EventRegistration = () => {
         setError('');
         setIsChecking(true);
         try {
-            // Check if email matches existing student database
+            // First: Check if user already registered for this exact event
+            const regQ = query(
+                collection(db, "event_registrations"), 
+                where("eventId", "==", eventId), 
+                where("email", "==", email)
+            );
+            const regSnap = await getDocs(regQ);
+
+            if (!regSnap.empty) {
+                // User already registered! Jump straight to their ticket.
+                const existingReg = regSnap.docs[0].data();
+                setName(existingReg.name || '');
+                setIsMember(existingReg.isMember || false);
+                setRegisteredTicketId(existingReg.ticketId);
+                setTicketStatus(existingReg.status || 'Pending');
+                setStep(4);
+                return; // Stop the flow here
+            }
+
+            // Normal Flow: Check if email matches existing student database
             const q = query(collection(db, "students"), where("email", "==", email));
             const querySnapshot = await getDocs(q);
 
@@ -394,8 +414,10 @@ const EventRegistration = () => {
                         </div>
                         <h2 style={{ marginBottom: '0.5rem' }}>Registration Received!</h2>
                         <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                            Thank you, <strong>{name}</strong>! Your ticket is generated below.
-                            <br />Status: <span style={{ color: '#F59E0B', fontWeight: 'bold' }}>Pending Admin Approval</span>
+                            Thank you, <strong>{name}</strong>! Your ticket is generated below. 
+                            <br />Status: <span style={{ color: ticketStatus === 'Approved' ? 'var(--pk-success)' : ticketStatus === 'Rejected' ? 'var(--pk-danger)' : '#F59E0B', fontWeight: 'bold' }}>
+                                {ticketStatus === 'Approved' ? '✅ Approved' : ticketStatus === 'Rejected' ? '❌ Rejected' : '⏳ Pending Admin Approval'}
+                            </span>
                         </p>
 
                         <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px dashed #38bdf8', padding: '0.75rem', borderRadius: '0.75rem', marginBottom: '1.5rem', color: '#38bdf8', fontSize: '0.85rem' }}>
@@ -407,9 +429,15 @@ const EventRegistration = () => {
                             <p style={{ color: '#000', margin: '0.5rem 0 0 0', fontWeight: 'bold', fontSize: '0.8rem' }}>{registeredTicketId}</p>
                         </div>
 
-                        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.5rem', textAlign: 'left', marginBottom: '1.5rem' }}>
-                            <p style={{ margin: 0, fontSize: '0.85rem' }}><strong>💡 Note:</strong> Your ticket is currently <strong>Inactive</strong>. Once the Admin verifies your payment screenshot, it will be activated for the event entry.</p>
-                        </div>
+                        {ticketStatus !== 'Approved' ? (
+                            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.5rem', textAlign: 'left', marginBottom: '1.5rem' }}>
+                                <p style={{ margin: 0, fontSize: '0.85rem' }}><strong>💡 Note:</strong> Your ticket is currently <strong>Inactive</strong>. Once the Admin verifies your payment screenshot, it will be activated for the event entry.</p>
+                            </div>
+                        ) : (
+                            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '0.5rem', textAlign: 'left', marginBottom: '1.5rem', color: 'var(--pk-success)' }}>
+                                <p style={{ margin: 0, fontSize: '0.85rem' }}><strong>✅ Awesome!</strong> Your payment has been verified and your ticket is <strong>Active</strong>. Show this QR code at the event entrance.</p>
+                            </div>
+                        )}
 
                         {isMember && (
                             <button className="btn-primary" onClick={() => navigate('/')} style={{ width: '100%', justifyContent: 'center' }}>Return to Homepage</button>
