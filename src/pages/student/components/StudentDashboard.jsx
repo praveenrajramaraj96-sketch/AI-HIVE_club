@@ -41,16 +41,18 @@ const StudentDashboard = () => {
                     }
 
                     // 2. Get registration count
-                    const regRef = doc(db, "registrations", auth.currentUser.uid);
-                    const regSnap = await getDoc(regRef);
-                    let regCount = 0;
-                    if (regSnap.exists()) {
-                        regCount = Object.keys(regSnap.data().events || {}).length;
-                    }
+                    const regQ = query(collection(db, "event_registrations"), where("email", "==", userEmail));
+                    const regSnap = await getDocs(regQ);
+                    const completedEventCount = regSnap.size;
+
+                    // 3. Get certificate count
+                    const certQ = query(collection(db, "achievements"), where("studentEmail", "==", userEmail));
+                    const certSnap = await getDocs(certQ);
+                    const certificateCount = certSnap.size;
 
                     setStats({
-                        attended: regCount,
-                        certificates: regCount > 0 ? 1 : 0,
+                        attended: completedEventCount,
+                        certificates: certificateCount,
                         status: accountStatus
                     });
                 }

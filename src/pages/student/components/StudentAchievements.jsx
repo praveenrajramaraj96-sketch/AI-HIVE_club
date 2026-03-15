@@ -36,9 +36,20 @@ const StudentAchievements = () => {
         fetchAchievements();
     }, []);
 
-    const handleDownload = (certUrl) => {
+    const handleDownload = (certUrl, title) => {
         if (!certUrl) return;
-        window.open(certUrl, '_blank');
+        
+        if (certUrl.startsWith('data:image')) {
+            const link = document.createElement('a');
+            link.href = certUrl;
+            link.download = `${title.replace(/\s+/g, '_')}_Certificate.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            // Fallback for old URL type links
+            window.open(certUrl, '_blank');
+        }
     };
 
     return (
@@ -75,7 +86,7 @@ const StudentAchievements = () => {
                                 </div>
                                 <button
                                     className="btn-secondary btn-sm download-btn"
-                                    onClick={() => handleDownload(item.certificateUrl)}
+                                    onClick={() => handleDownload(item.certificateUrl, item.title)}
                                     disabled={!item.certificateUrl}
                                 >
                                     <DownloadCloud size={16} />
