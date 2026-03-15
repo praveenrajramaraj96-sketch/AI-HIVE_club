@@ -411,7 +411,9 @@ const EventRegistration = () => {
                             <p style={{ margin: 0, fontSize: '0.85rem' }}><strong>💡 Note:</strong> Your ticket is currently <strong>Inactive</strong>. Once the Admin verifies your payment screenshot, it will be activated for the event entry.</p>
                         </div>
 
-                        <button className="btn-primary" onClick={() => navigate('/')} style={{ width: '100%', justifyContent: 'center' }}>Return to Homepage</button>
+                        {isMember && (
+                            <button className="btn-primary" onClick={() => navigate('/')} style={{ width: '100%', justifyContent: 'center' }}>Return to Homepage</button>
+                        )}
                     </div>
                 )}
             </motion.div>
